@@ -35,6 +35,15 @@ void setTodos(List<Todo> todos) {
 }
 ```
 
+#### Reading Todos
+
+```dart 
+List<Todo> readTodos() {
+  final data = List.from(json.decode(file.readAsStringSync()));
+  return data.map(Todo.fromMap).toList();
+}
+```
+
 ## Design Inspiration
 
 https://www.figma.com/community/file/1334455555712570518/todo-app
