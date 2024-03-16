@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'models/todo.dart';
+import 'repo/todo_repo.dart';
+
 class CreateTodoForm extends StatefulWidget {
   const CreateTodoForm({super.key});
 
@@ -9,6 +12,14 @@ class CreateTodoForm extends StatefulWidget {
 
 class _CreateTodoFormState extends State<CreateTodoForm> {
   final formKey = GlobalKey<FormState>();
+
+  var todo = Todo(
+    id: DateTime.now().millisecondsSinceEpoch.toString(),
+    task: '',
+    startTime: DateTime.now(),
+    endTime: DateTime.now(),
+    completed: false,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +49,7 @@ class _CreateTodoFormState extends State<CreateTodoForm> {
                 labelText: 'Task',
                 hintText: 'What you want to do or accomplish?',
               ),
+              onSaved: (x) => todo = todo.copyWith(task: x),
             ),
             const SizedBox(height: 20),
             Row(
@@ -45,18 +57,22 @@ class _CreateTodoFormState extends State<CreateTodoForm> {
                 Expanded(
                   child: InputDatePickerFormField(
                     acceptEmptyDate: false,
+                    initialDate: todo.startTime,
                     firstDate: DateTime.now(),
                     lastDate: DateTime(2100),
                     fieldLabelText: 'Start Date',
+                    onDateSaved: (x) => todo = todo.copyWith(startTime: x),
                   ),
                 ),
                 const SizedBox(width: 20),
                 Expanded(
                   child: InputDatePickerFormField(
                     acceptEmptyDate: false,
+                    initialDate: todo.endTime,
                     firstDate: DateTime.now(),
                     lastDate: DateTime(2100),
                     fieldLabelText: 'End Date',
+                    onDateSaved: (x) => todo = todo.copyWith(endTime: x),
                   ),
                 ),
               ],
@@ -64,15 +80,20 @@ class _CreateTodoFormState extends State<CreateTodoForm> {
             const SizedBox(height: 20),
             const Spacer(),
             ElevatedButton(
-              onPressed: () {
-                final isValid = formKey.currentState?.validate() ?? false;
-                if (isValid) Navigator.of(context).pop();
-              },
+              onPressed: save,
               child: const Text('Create'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void save() {
+    final isValid = formKey.currentState?.validate() ?? false;
+    if (!isValid) return;
+    formKey.currentState?.save();
+    TodoRepo.instance.addTodo(todo);
+    Navigator.of(context).pop();
   }
 }

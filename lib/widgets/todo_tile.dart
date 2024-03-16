@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../utils/datetime_ext.dart';
 import '../models/todo.dart';
+import '../repo/todo_repo.dart';
 
 class TodoTile extends StatefulWidget {
   const TodoTile({
@@ -15,16 +17,18 @@ class TodoTile extends StatefulWidget {
 }
 
 class _TodoTileState extends State<TodoTile> {
-  late bool selected = widget.todo.completed;
+  late var todo = widget.todo;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        setState(() => selected = !selected);
+        final toggledTodo = todo.copyWith(completed: !todo.completed);
+        setState(() => todo = toggledTodo);
+        TodoRepo.instance.addTodo(toggledTodo);
       },
       leading: Radio(
-        value: selected,
+        value: todo.completed,
         groupValue: true,
         onChanged: (x) {},
       ),
@@ -34,29 +38,18 @@ class _TodoTileState extends State<TodoTile> {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontWeight: FontWeight.w500,
-          decoration: selected ? TextDecoration.lineThrough : null,
+          decoration: todo.completed ? TextDecoration.lineThrough : null,
         ),
       ),
       subtitle: Text(
-        '${widget.todo.startTime.timeFormated} to ${widget.todo.endTime.timeFormated}',
+        widget.todo.startTime.rangeTill(widget.todo.endTime),
       ),
       trailing: IconButton(
         iconSize: 25,
         color: Colors.red,
         icon: const Icon(Icons.delete_outline),
-        onPressed: () {},
+        onPressed: () => TodoRepo.instance.deletTodo(todo),
       ),
     );
-  }
-}
-
-extension on DateTime {
-  String get timeFormated {
-    final local = toLocal();
-    final hr = local.hour;
-    final min = local.minute;
-    final hrStr = hr.toString().padLeft(2, '0');
-    final minStr = min.toString().padLeft(2, '0');
-    return '$hrStr:$minStr';
   }
 }

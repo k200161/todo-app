@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'home_screen.dart';
+import 'repo/todo_repo.dart';
 import 'theme.dart';
+import 'utils/todos_file.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final file = await TodosFile.init();
+  TodoRepo.instance.todosFile = file;
   runApp(const TodoApp());
 }
 

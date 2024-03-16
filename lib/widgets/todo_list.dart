@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/todo_data.dart';
+import '../repo/todo_repo.dart';
 import 'todo_tile.dart';
 
 class TodoList extends StatelessWidget {
@@ -8,14 +8,44 @@ class TodoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final todos = getTodoItems();
+    return StreamBuilder(
+      stream: TodoRepo.instance.streamTodos(),
+      builder: (context, snap) {
+        if (snap.hasError)
+          return Center(
+            heightFactor: 10,
+            child: Text(snap.error.toString()),
+          );
 
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 5,
-      itemBuilder: (_, i) => TodoTile(todo: todos[i]),
-      separatorBuilder: (_, i) => const SizedBox(height: 20),
+        if (!snap.hasData)
+          return const Center(
+            heightFactor: 5,
+            child: CircularProgressIndicator(),
+          );
+
+        final todos = snap.data ?? const [];
+
+        if (todos.isEmpty)
+          return const Center(
+            heightFactor: 10,
+            child: Text('No todos found'),
+          );
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: todos.length,
+          separatorBuilder: (_, i) => const SizedBox(height: 20),
+          itemBuilder: (_, i) {
+            final todo = todos[i];
+
+            return TodoTile(
+              key: ValueKey(todo.id),
+              todo: todo,
+            );
+          },
+        );
+      },
     );
   }
 }
