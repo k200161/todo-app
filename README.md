@@ -2,6 +2,14 @@
 
 A beautiful todo app made with flutter.
 
+## Contributions
+
+- Saad Bin Khalid, 20K-0161
+- Moaaz Bin Sajjad, 20K-0154
+- Abdul Rahman, 20K-0239
+- Group: 6
+
+
 ## Screenshots
 
 <div>
